@@ -1,1 +1,81 @@
-// TODO
+.container {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+.posts {
+  // display: flex;
+  // flex-direction: column;
+  padding-bottom: 5rem;
+
+
+  a {
+    display: block;
+
+    & + a {
+      margin-top: 3rem;
+    }
+
+    strong {
+      font-size: 1.75rem;
+      line-height: 2.125rem;
+      font-weight: bold;
+      color: var(--gray-100);
+
+      transition: color 0.2s;
+    }
+
+    p {
+      margin-top: 0.5rem;
+      font-size: 1.125rem;
+      color: var(--gray-200);
+    }
+
+    div {
+      margin-top: 1.5rem;
+      display: flex;
+
+      span {
+        display: flex;
+        align-items: center;
+        font-size: 0.875rem;
+        color: var(--gray-300);
+
+        svg {
+          width: 20px;
+          height: 20px;
+          margin-right: 0.5rem;
+        }
+
+        &:last-child {
+          margin-left: 1.5rem;
+        }
+      }
+    }
+
+    &:hover strong {
+      color: var(--pink-500);
+    }
+
+    &:last-child {
+    }
+  }
+
+  button {
+    display: flex;
+    margin-top: 4rem;
+    background-color: transparent;
+    border: none;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--pink-500);
+    transition: filter 0.2s;
+
+    &:hover {
+      filter: brightness(0.6);
+    }
+  }
+}
+
+
+
