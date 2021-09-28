@@ -10,6 +10,7 @@ import { getPrismicClient } from '../services/prismic';
 
 import commonStyles from '../styles/common.module.scss';
 import styles from './home.module.scss';
+import Header from '../components/Header';
 
 interface Post {
   uid?: string;
@@ -34,13 +35,14 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
   const { next_page, results } = postsPagination;
   return (
     <>
+      <Header />
       <Head>
         <title>Home | spacetraveling</title>
       </Head>
       <main className={styles.container}>
         <section className={styles.posts}>
           {results.map(post => (
-            <Link href="/">
+            <Link key={post.uid} href={`post/${post.uid}`}>
               <a>
                 <strong>{post.data.title}</strong>
                 <p>{post.data.subtitle}</p>
@@ -69,12 +71,13 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
   );
 }
 
-export const getStaticProps = async () => {
+export const getStaticProps: GetStaticProps = async () => {
   const prismic = getPrismicClient();
   const postsResponse = await prismic.query(
     [Prismic.Predicates.at('document.type', 'posts')],
     {
       fetch: ['posts.title', 'posts.subtitle', 'posts.author'],
+      pageSize: 5,
     }
   );
 
