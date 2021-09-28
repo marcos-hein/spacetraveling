@@ -6,6 +6,7 @@ import { FiCalendar, FiUser } from 'react-icons/fi';
 
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useEffect, useState } from 'react';
 import { getPrismicClient } from '../services/prismic';
 
 import commonStyles from '../styles/common.module.scss';
@@ -32,7 +33,25 @@ interface HomeProps {
 }
 
 export default function Home({ postsPagination }: HomeProps): JSX.Element {
-  const { next_page, results } = postsPagination;
+  const [posts, setPosts] = useState<Post[]>(postsPagination.results);
+  const [nextPage, setNextPage] = useState(postsPagination.next_page);
+
+  async function handlePagination() {
+    const response = await fetch(nextPage).then(data => data.json());
+    const newPosts = response.results?.map(post => {
+      return {
+        uid: post.uid,
+        first_publication_date: format(new Date(), 'dd MMM yyyy', {
+          locale: ptBR,
+        }),
+        data: post.data,
+      };
+    });
+
+    setPosts([...posts, ...newPosts]);
+    setNextPage(response.next_page);
+  }
+
   return (
     <>
       <Header />
@@ -41,7 +60,7 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
       </Head>
       <main className={styles.container}>
         <section className={styles.posts}>
-          {results.map(post => (
+          {posts.map(post => (
             <Link key={post.uid} href={`post/${post.uid}`}>
               <a>
                 <strong>{post.data.title}</strong>
@@ -60,8 +79,12 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
             </Link>
           ))}
 
-          {next_page && (
-            <button className={styles.button} type="button">
+          {nextPage && (
+            <button
+              className={styles.button}
+              type="button"
+              onClick={handlePagination}
+            >
               Carregar mais posts
             </button>
           )}
@@ -77,7 +100,7 @@ export const getStaticProps: GetStaticProps = async () => {
     [Prismic.Predicates.at('document.type', 'posts')],
     {
       fetch: ['posts.title', 'posts.subtitle', 'posts.author'],
-      pageSize: 5,
+      pageSize: 1,
     }
   );
 
