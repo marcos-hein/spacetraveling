@@ -1,13 +1,5 @@
-.container {
-  max-width: 1120px;
-  margin: 0 auto;
-}
-
 .posts {
-  // display: flex;
-  // flex-direction: column;
-  padding-bottom: 5rem;
-
+margin-top: 2rem;
 
   a {
     display: block;
@@ -67,7 +59,7 @@
     background-color: transparent;
     border: none;
     font-size: 1.5rem;
-    font-weight: bold;
+    font-weight: 600;
     color: var(--pink-500);
     transition: filter 0.2s;
 
