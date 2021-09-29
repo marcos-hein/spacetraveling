@@ -6,7 +6,7 @@ import { FiCalendar, FiUser } from 'react-icons/fi';
 
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { getPrismicClient } from '../services/prismic';
 
 import commonStyles from '../styles/common.module.scss';
@@ -36,20 +36,23 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
   const [posts, setPosts] = useState<Post[]>(postsPagination.results);
   const [nextPage, setNextPage] = useState(postsPagination.next_page);
 
-  async function handlePagination() {
-    const response = await fetch(nextPage).then(data => data.json());
-    const newPosts = response.results?.map(post => {
-      return {
-        uid: post.uid,
-        first_publication_date: format(new Date(), 'dd MMM yyyy', {
-          locale: ptBR,
-        }),
-        data: post.data,
-      };
-    });
+  function handlePagination(): void {
+    fetch(nextPage)
+      .then(data => data.json())
+      .then(data => {
+        const newPosts = data.results?.map(post => {
+          return {
+            uid: post.uid,
+            first_publication_date: format(new Date(), 'dd MMM yyyy', {
+              locale: ptBR,
+            }),
+            data: post.data,
+          };
+        });
 
-    setPosts([...posts, ...newPosts]);
-    setNextPage(response.next_page);
+        setPosts([...posts, ...newPosts]);
+        setNextPage(data.next_page);
+      });
   }
 
   return (
@@ -100,16 +103,20 @@ export const getStaticProps: GetStaticProps = async () => {
     [Prismic.Predicates.at('document.type', 'posts')],
     {
       fetch: ['posts.title', 'posts.subtitle', 'posts.author'],
-      pageSize: 1,
+      pageSize: 5,
     }
   );
 
   const posts = postsResponse.results?.map(post => {
     return {
       uid: post.uid,
-      first_publication_date: format(new Date(), 'dd MMM yyyy', {
-        locale: ptBR,
-      }),
+      first_publication_date: format(
+        new Date(post.first_publication_date),
+        'dd MMM yyyy',
+        {
+          locale: ptBR,
+        }
+      ),
       data: post.data,
     };
   });
