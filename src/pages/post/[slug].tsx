@@ -6,6 +6,7 @@ import { format } from 'date-fns';
 
 import { ptBR } from 'date-fns/locale';
 import { FiCalendar, FiClock, FiUser } from 'react-icons/fi';
+import Head from 'next/head';
 import Header from '../../components/Header';
 
 import { getPrismicClient } from '../../services/prismic';
@@ -52,7 +53,14 @@ export default function Post({ post }: PostProps): JSX.Element {
 
   return (
     <>
+      <Head>
+        <title>{post.data.title} | spacatraveling</title>
+      </Head>
       <Header />
+
+      <div>
+        <img src={post.data.banner.url} alt="Banner" />
+      </div>
       <main>
         <article>
           <h1>{post.data.title}</h1>
