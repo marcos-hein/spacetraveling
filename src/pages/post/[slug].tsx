@@ -67,7 +67,9 @@ export default function Post({ post }: PostProps): JSX.Element {
           <div className={styles.postInfo}>
             <span>
               <FiCalendar />
-              {post.first_publication_date}
+              {format(new Date(post.first_publication_date), 'dd MMM yyyy', {
+                locale: ptBR,
+              })}
             </span>
             <span>
               <FiUser />
@@ -122,15 +124,11 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { slug } = params;
   const response = await prismic.getByUID('posts', String(slug), {});
   const post = {
-    first_publication_date: format(
-      new Date(response.first_publication_date),
-      'dd MMM yyyy',
-      {
-        locale: ptBR,
-      }
-    ),
+    uid: response.uid,
+    first_publication_date: response.first_publication_date,
     data: {
       title: response.data.title,
+      subtitle: response.data.subtitle,
       banner: {
         url: response.data.banner.url,
       },
