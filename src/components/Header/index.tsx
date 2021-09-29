@@ -4,9 +4,9 @@ import styles from './header.module.scss';
 
 export default function Header(): JSX.Element {
   return (
-    <header className={styles.headerContainer}>
+    <header className={styles.headerContent}>
       <Link href="/">
-        <a className={styles.headerContent}>
+        <a>
           <img src="/logo.svg" alt="logo" />
         </a>
       </Link>
