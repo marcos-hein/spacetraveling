@@ -56,15 +56,15 @@ export default function Post({ post }: PostProps): JSX.Element {
       <Head>
         <title>{post.data.title} | spacatraveling</title>
       </Head>
+
       <Header />
 
-      <div>
-        <img src={post.data.banner.url} alt="Banner" />
-      </div>
-      <main>
-        <article>
+      <img className={styles.banner} src={post.data.banner.url} alt="Banner" />
+
+      <main className={commonStyles.container}>
+        <article className={styles.post}>
           <h1>{post.data.title}</h1>
-          <div>
+          <div className={styles.postInfo}>
             <span>
               <FiCalendar />
               {post.first_publication_date}
@@ -75,18 +75,19 @@ export default function Post({ post }: PostProps): JSX.Element {
             </span>
             <span>
               <FiClock />
-              {estimatedTime}
+              {`${estimatedTime} min`}
             </span>
           </div>
-
-          {post.data.content.map(({ heading, body }) => (
-            <div key={heading}>
-              <h2>{heading}</h2>
-              <div
-                dangerouslySetInnerHTML={{ __html: RichText.asHtml(body) }}
-              />
-            </div>
-          ))}
+          <div className={styles.postContent}>
+            {post.data.content.map(({ heading, body }) => (
+              <div key={heading}>
+                <h2>{heading}</h2>
+                <div
+                  dangerouslySetInnerHTML={{ __html: RichText.asHtml(body) }}
+                />
+              </div>
+            ))}
+          </div>
         </article>
       </main>
     </>
