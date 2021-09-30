@@ -34,12 +34,24 @@ interface Post {
   };
 }
 
+interface NeighborPost {
+  uid: string;
+  title: string;
+}
+
 interface PostProps {
   post: Post;
   preview: boolean;
+  previousPost: NeighborPost;
+  nextPost: NeighborPost;
 }
 
-export default function Post({ post, preview }: PostProps): JSX.Element {
+export default function Post({
+  post,
+  preview,
+  previousPost,
+  nextPost,
+}: PostProps): JSX.Element {
   const router = useRouter();
 
   if (router.isFallback) return <div>Carregando...</div>;
@@ -96,6 +108,22 @@ export default function Post({ post, preview }: PostProps): JSX.Element {
           </div>
         </article>
 
+        <div className="asod">
+          <div key={previousPost.uid}>
+            <Link href="/">
+              <span>{previousPost.title}</span>
+              <a>Post anterior</a>
+            </Link>
+          </div>
+
+          <div key={nextPost.uid}>
+            <Link href="/">
+              <span>{previousPost.title}</span>
+              <a>Post anterior</a>
+            </Link>
+          </div>
+        </div>
+
         <Comments />
 
         {preview && <PreviewButton />}
@@ -138,6 +166,26 @@ export const getStaticProps: GetStaticProps = async ({
     ref: previewData?.ref ?? null,
   });
 
+  const previousPost = await prismic.query(
+    [Prismic.Predicates.at('document.type', 'posts')],
+    {
+      fetch: ['posts.title'],
+      pageSize: 1,
+      after: response.id,
+      orderings: '[document.first_publication_date]',
+    }
+  );
+
+  const nextPost = await prismic.query(
+    [Prismic.Predicates.at('document.type', 'posts')],
+    {
+      fetch: ['posts.title'],
+      pageSize: 1,
+      after: response.id,
+      orderings: '[document.first_publication_date desc]',
+    }
+  );
+
   const post = {
     uid: response.uid,
     first_publication_date: response.first_publication_date,
@@ -156,6 +204,14 @@ export const getStaticProps: GetStaticProps = async ({
     props: {
       post,
       preview,
+      previousPost: {
+        uid: previousPost.results[0].uid,
+        title: previousPost.results[0].data.title,
+      },
+      nextPost: {
+        uid: nextPost.results[0].uid,
+        title: nextPost.results[0].data.title,
+      },
     },
   };
 };
