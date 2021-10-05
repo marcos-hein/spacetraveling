@@ -19,6 +19,7 @@ import { PreviewButton } from '../../components/PreviewButton';
 
 interface Post {
   first_publication_date: string | null;
+  last_publication_date: string | null;
   data: {
     title: string;
     banner: {
@@ -36,7 +37,9 @@ interface Post {
 
 interface NeighborPost {
   uid: string;
-  title: string;
+  data: {
+    title: string;
+  };
 }
 
 interface PostProps {
@@ -54,7 +57,14 @@ export default function Post({
 }: PostProps): JSX.Element {
   const router = useRouter();
 
-  if (router.isFallback) return <div>Carregando...</div>;
+  if (router.isFallback) {
+    return (
+      <div className={styles.loadingPage}>
+        <div className={styles.loader} />
+        <h1>Carregando...</h1>
+      </div>
+    );
+  }
 
   const amountOfWords = post.data.content.reduce(
     (arr, data) => [
@@ -66,6 +76,8 @@ export default function Post({
   ).length;
   const wordsPerMinute = 200;
   const estimatedTime = Math.ceil(amountOfWords / wordsPerMinute);
+
+  const isEdited = post.first_publication_date !== post.last_publication_date;
 
   return (
     <>
@@ -96,6 +108,19 @@ export default function Post({
               {`${estimatedTime} min`}
             </span>
           </div>
+
+          {isEdited && (
+            <span>
+              {format(
+                new Date(post.first_publication_date),
+                "'* editado em' dd MMM yyyy', às' H':'m",
+                {
+                  locale: ptBR,
+                }
+              )}
+            </span>
+          )}
+
           <div className={styles.postContent}>
             {post.data.content.map(({ heading, body }) => (
               <div key={heading}>
@@ -108,21 +133,29 @@ export default function Post({
           </div>
         </article>
 
-        <div className="asod">
-          <div key={previousPost.uid}>
-            <Link href="/">
-              <span>{previousPost.title}</span>
-              <a>Post anterior</a>
-            </Link>
+        <section className={styles.navigationContainer}>
+          <div>
+            {previousPost && (
+              <>
+                <span>{previousPost?.data.title}</span>
+                <Link href={`/post/${previousPost.uid}`}>
+                  <a>Post anterior</a>
+                </Link>
+              </>
+            )}
           </div>
 
-          <div key={nextPost.uid}>
-            <Link href="/">
-              <span>{previousPost.title}</span>
-              <a>Post anterior</a>
-            </Link>
+          <div>
+            {nextPost && (
+              <>
+                <span>{nextPost.data.title}</span>
+                <Link href={`/post/${nextPost.uid}`}>
+                  <a>Próximo post</a>
+                </Link>
+              </>
+            )}
           </div>
-        </div>
+        </section>
 
         <Comments />
 
@@ -189,6 +222,7 @@ export const getStaticProps: GetStaticProps = async ({
   const post = {
     uid: response.uid,
     first_publication_date: response.first_publication_date,
+    last_publication_date: response.last_publication_date,
     data: {
       title: response.data.title,
       subtitle: response.data.subtitle,
@@ -204,14 +238,8 @@ export const getStaticProps: GetStaticProps = async ({
     props: {
       post,
       preview,
-      previousPost: {
-        uid: previousPost.results[0].uid,
-        title: previousPost.results[0].data.title,
-      },
-      nextPost: {
-        uid: nextPost.results[0].uid,
-        title: nextPost.results[0].data.title,
-      },
+      previousPost: previousPost?.results[0] ?? null,
+      nextPost: nextPost?.results[0] ?? null,
     },
   };
 };
